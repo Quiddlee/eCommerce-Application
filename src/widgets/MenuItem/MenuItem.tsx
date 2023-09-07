@@ -40,8 +40,8 @@ export default function MenuItem({ name, image, id, attributes, prices, delay }:
       animate={{ y: 0, opacity: 1 }}
       transition={{
         type: 'spring',
-        stiffness: 180,
-        damping: 10,
+        stiffness: 210,
+        damping: 11,
         delay,
       }}
       className="w-full list-none"
