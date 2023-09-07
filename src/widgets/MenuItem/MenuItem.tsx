@@ -41,7 +41,7 @@ export default function MenuItem({ name, image, id, attributes, prices, delay }:
       transition={{
         type: 'spring',
         stiffness: 180,
-        damping: 11,
+        damping: 10,
         delay,
       }}
       className="w-full list-none"
