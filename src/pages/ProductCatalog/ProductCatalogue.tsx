@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/no-array-index-key */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useLocation, useSearchParams } from 'react-router-dom';
@@ -25,6 +25,8 @@ import { useGetPath } from '../../shared/lib/hooks';
 import LoadingAnimation from '../../shared/ui/LoadingAnimation.tsx';
 import MenuItem from '../../widgets/MenuItem/MenuItem.tsx';
 
+const PAGE_ITEMS = 5;
+
 export default function ProductCatalogue() {
   const path = useGetPath();
   const urlActiveCat = capitalize(decodeURIComponent(path));
@@ -40,6 +42,7 @@ export default function ProductCatalogue() {
   const [activeCat, setActiveCat] = useState(urlActiveCat ?? 'All');
   const { data: categoryData } = useGetCategoryQuery(urlActiveCat.toLowerCase().replace(' ', '-'));
   const [filtersState, setFiltersState] = useState(parseQueryState(query));
+  const productsIndex = useRef(0);
 
   const productListData = { ...productItems };
   const prevCategories = pathname
@@ -76,7 +79,7 @@ export default function ProductCatalogue() {
 
     getProductList(
       {
-        limit: 5,
+        limit: PAGE_ITEMS,
         offset,
         sort: {
           field,
@@ -106,7 +109,7 @@ export default function ProductCatalogue() {
   }
 
   function handleNextPage() {
-    fetchProducts(undefined, (productListData?.offset ?? 0) + 5);
+    fetchProducts(undefined, (productListData?.offset ?? 0) + PAGE_ITEMS);
   }
 
   function onApplyFilters() {
@@ -226,16 +229,24 @@ export default function ProductCatalogue() {
             endMessage={<p className="text-text-grey">You Reached The End!</p>}
             className="grid items-center gap-5 pb-12 lg:gap-6"
           >
-            {productListData.results?.map(({ id, name, masterVariant: { prices, images, attributes } }, i) => (
-              <MenuItem
-                key={`${id}-${i}`}
-                id={id}
-                name={name.en}
-                prices={prices}
-                image={images[0].url}
-                attributes={attributes}
-              />
-            ))}
+            {productListData.results?.map(({ id, name, masterVariant: { prices, images, attributes } }, i) => {
+              const delay =
+                productsIndex.current === 0.4
+                  ? (productsIndex.current = 0.16)
+                  : (productsIndex.current = Number((productsIndex.current + 0.04).toFixed(2)));
+
+              return (
+                <MenuItem
+                  key={`${id}-${i}`}
+                  id={id}
+                  delay={delay}
+                  name={name.en}
+                  prices={prices}
+                  image={images[0].url}
+                  attributes={attributes}
+                />
+              );
+            })}
           </InfiniteScroll>
         ) : null}
       </MenuList>
